@@ -1,0 +1,13 @@
+[workspace]
+members = ["cli", "lib"]
+default-members = ["cli"]
+resolver = "3"
+
+[workspace.package]
+authors = ["Jacob Heider <jhheider@gmail.com>"]
+description = "A rust CLI/library for interacting with teaxyz/gpg-wallet"
+edition = "2024"
+repository = "https://github.com/jhheider/tea-gpg-wallet"
+keywords = ["cryptocurrency", "gpg", "blockchain", "tea"]
+license = "MIT"
+rust-version = "1.89"
