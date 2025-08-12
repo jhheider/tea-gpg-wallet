@@ -68,7 +68,7 @@ pub async fn send_to_gpg_key(key_id: &str, amount: U256, private_key: &str) -> U
                 .parse::<PrivateKeySigner>()
                 .expect("Invalid private key"),
         )
-        .connect_http(env!("RPC_URL").parse().expect("Invalid RPC URL"));
+        .connect_http(get_rpc_url());
     let destination = ensure_deployed(key_id).await;
 
     let send = TransactionRequest::default()
@@ -134,8 +134,8 @@ mod tests {
         let key_id = "95469C7E3DFC90B1";
         let amount = U256::from(1_000_000_000_000_000u64); // 1 Gwei
 
-        let stating_balance = get_key_id_balance(key_id).await;
+        let starting_balance = get_key_id_balance(key_id).await;
         let new_balance = send_to_gpg_key(key_id, amount, &pk).await;
-        assert_eq!(new_balance, stating_balance + amount);
+        assert_eq!(new_balance, starting_balance + amount);
     }
 }
