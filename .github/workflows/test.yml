@@ -41,16 +41,15 @@ jobs:
       - name: Test
         run: cargo test --all-features
 
-  # TODO: when public
-  # coverage:
-  #   name: Coverage
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v5
-  #     - uses: dtolnay/rust-toolchain@stable
-  #     - run: cargo install cargo-tarpaulin
-  #     - name: Generate test result and coverage report
-  #       run: cargo tarpaulin --ignore-tests -o Html -o Lcov --timeout 240 --engine llvm
-  #     - uses: coverallsapp/github-action@v2
-  #       with:
-  #         file: lcov.info
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo install cargo-tarpaulin
+      - name: Generate test result and coverage report
+        run: cargo tarpaulin --ignore-tests -o Html -o Lcov --timeout 240 --engine llvm
+      - uses: coverallsapp/github-action@v2
+        with:
+          file: lcov.info
