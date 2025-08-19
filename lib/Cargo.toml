@@ -11,3 +11,4 @@ serde = { version = "1.0.219", features = ["derive", "serde_derive"] }
 alloy = "1.0.24"
 tokio = { version = "1.47.1", features = ["full"] }
 reqwest = "0.12.23"
+anyhow = "1.0.99"
