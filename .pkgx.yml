@@ -1,0 +1,3 @@
+dependencies:
+  rust-lang.org: ^1.89
+  just.systems: '*'
