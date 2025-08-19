@@ -29,13 +29,22 @@ pub async fn predict_address(key_id: &str) -> Result<GpgRewardDeployer::predictA
         .context("Failed to predict address")
 }
 
-pub async fn ensure_deployed(key_id: &str) -> Result<GpgRewardDeployer::predictAddressReturn> {
+pub async fn ensure_deployed(
+    key_id: &str,
+    private_key: &str,
+) -> Result<GpgRewardDeployer::predictAddressReturn> {
     let prediction = predict_address(key_id).await?;
 
     if prediction.isDeployed {
         return Ok(prediction);
     }
-    let provider = ProviderBuilder::new().connect_http(get_rpc_url()?);
+    let provider = ProviderBuilder::new()
+        .wallet(
+            private_key
+                .parse::<PrivateKeySigner>()
+                .context("Invalid private key")?,
+        )
+        .connect_http(get_rpc_url()?);
     GpgRewardDeployer::new(get_contract_address()?, provider)
         .deploy(key_id_to_bytes(key_id)?)
         .send()
@@ -50,7 +59,10 @@ pub async fn ensure_deployed(key_id: &str) -> Result<GpgRewardDeployer::predictA
 
 pub async fn get_key_id_balance(key_id: &str) -> Result<U256> {
     let provider = ProviderBuilder::new().connect_http(get_rpc_url()?);
-    let destination = ensure_deployed(key_id).await?;
+    let destination = predict_address(key_id).await?;
+    if !destination.isDeployed {
+        return Err(anyhow!("GPG wallet for key ID {key_id} is not deployed"));
+    }
     provider
         .get_balance(destination.walletAddress)
         .await
@@ -70,7 +82,7 @@ pub async fn send_to_gpg_key(key_id: &str, amount: U256, private_key: &str) -> R
                 .context("Invalid private key")?,
         )
         .connect_http(get_rpc_url()?);
-    let destination = ensure_deployed(key_id).await?;
+    let destination = ensure_deployed(key_id, private_key).await?;
 
     let send = TransactionRequest::default()
         .to(destination.walletAddress)
@@ -115,9 +127,13 @@ mod tests {
 
     #[tokio::test]
     async fn test_ensure_deployed() -> Result<()> {
+        let Ok(pk) = env::var("PRIVATE_KEY") else {
+            eprintln!("PRIVATE_KEY environment variable not set\nSkipping test_send_to_id");
+            return Ok(());
+        };
         // already deployed
         let key_id = "95469C7E3DFC90B1";
-        let prediction = ensure_deployed(key_id).await?;
+        let prediction = ensure_deployed(key_id, &pk).await?;
         assert!(prediction.isDeployed);
         assert_eq!(
             prediction.walletAddress,
