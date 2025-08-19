@@ -1,6 +1,10 @@
+<!-- markdownlint-disable MD013 -->
 # tea-gpg-wallet
 
-A Rust CLI tool for interacting with GPG-based TEA wallets. This tool allows you to manage TEA tokens using your GPG key identity, providing a secure way to handle cryptocurrency transactions without traditional private key management.
+A Rust CLI tool for interacting with GPG-based TEA wallets. This tool allows
+you to manage TEA tokens using your GPG key identity, providing a secure way
+to handle cryptocurrency transactions without traditional private key
+management.
 
 ## Features
 
@@ -210,7 +214,7 @@ cargo test
 
 ### Project Structure
 
-```
+```text
 tea-gpg-wallet/
 ├── cli/          # Command-line interface
 ├── lib/          # Core library functionality
