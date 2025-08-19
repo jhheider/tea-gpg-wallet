@@ -6,6 +6,7 @@ use alloy::{
     signers::local::PrivateKeySigner,
     sol,
 };
+use anyhow::{Context, Result, anyhow};
 
 sol!(
     #[sol(rpc)]
@@ -13,47 +14,47 @@ sol!(
     "abi/GpgRewardDeployer.json"
 );
 
-pub fn get_contract_address() -> Address {
+pub fn get_contract_address() -> Result<Address> {
     Address::parse_checksummed(env!("GPG_DEPLOYER_ADDRESS"), None)
-        .expect("Invalid GPG deployer address")
+        .context("Invalid GPG deployer address configured at build time.")
 }
 
-pub async fn predict_address(key_id: &str) -> GpgRewardDeployer::predictAddressReturn {
-    let provider = ProviderBuilder::new().connect_http(get_rpc_url());
-    let key_id = key_id_to_bytes(key_id);
-    GpgRewardDeployer::new(get_contract_address(), provider)
+pub async fn predict_address(key_id: &str) -> Result<GpgRewardDeployer::predictAddressReturn> {
+    let provider = ProviderBuilder::new().connect_http(get_rpc_url()?);
+    let key_id = key_id_to_bytes(key_id)?;
+    GpgRewardDeployer::new(get_contract_address()?, provider)
         .predictAddress(key_id)
         .call()
         .await
-        .expect("Failed to predict address")
+        .context("Failed to predict address")
 }
 
-pub async fn ensure_deployed(key_id: &str) -> GpgRewardDeployer::predictAddressReturn {
-    let prediction = predict_address(key_id).await;
+pub async fn ensure_deployed(key_id: &str) -> Result<GpgRewardDeployer::predictAddressReturn> {
+    let prediction = predict_address(key_id).await?;
 
     if prediction.isDeployed {
-        return prediction;
+        return Ok(prediction);
     }
-    let provider = ProviderBuilder::new().connect_http(get_rpc_url());
-    GpgRewardDeployer::new(get_contract_address(), provider)
-        .deploy(key_id_to_bytes(key_id))
+    let provider = ProviderBuilder::new().connect_http(get_rpc_url()?);
+    GpgRewardDeployer::new(get_contract_address()?, provider)
+        .deploy(key_id_to_bytes(key_id)?)
         .send()
         .await
-        .expect("Failed to deploy GPG reward wallet")
+        .context("Failed to deploy GPG reward wallet")?
         .get_receipt()
         .await
-        .expect("Deployment transaction failed");
+        .context("Deployment transaction failed")?;
 
     predict_address(key_id).await
 }
 
-pub async fn get_key_id_balance(key_id: &str) -> U256 {
-    let provider = ProviderBuilder::new().connect_http(get_rpc_url());
-    let destination = ensure_deployed(key_id).await;
+pub async fn get_key_id_balance(key_id: &str) -> Result<U256> {
+    let provider = ProviderBuilder::new().connect_http(get_rpc_url()?);
+    let destination = ensure_deployed(key_id).await?;
     provider
         .get_balance(destination.walletAddress)
         .await
-        .expect("Failed to get balance")
+        .context("Failed to get balance")
 }
 
 // send to a gpg wallet, confirming and deploying as necessary
@@ -61,15 +62,15 @@ pub async fn get_key_id_balance(key_id: &str) -> U256 {
 // amount: the amount to send in wei
 // private_key: the private key of the sender
 // returns balance
-pub async fn send_to_gpg_key(key_id: &str, amount: U256, private_key: &str) -> U256 {
+pub async fn send_to_gpg_key(key_id: &str, amount: U256, private_key: &str) -> Result<U256> {
     let provider = ProviderBuilder::new()
         .wallet(
             private_key
                 .parse::<PrivateKeySigner>()
-                .expect("Invalid private key"),
+                .context("Invalid private key")?,
         )
-        .connect_http(get_rpc_url());
-    let destination = ensure_deployed(key_id).await;
+        .connect_http(get_rpc_url()?);
+    let destination = ensure_deployed(key_id).await?;
 
     let send = TransactionRequest::default()
         .to(destination.walletAddress)
@@ -78,13 +79,16 @@ pub async fn send_to_gpg_key(key_id: &str, amount: U256, private_key: &str) -> U
     let receipt = provider
         .send_transaction(send)
         .await
-        .expect("Failed to send transaction")
+        .context("Failed to send transaction")?
         .get_receipt()
         .await
-        .expect("Transaction failed");
+        .context("Transaction failed")?;
 
     if !receipt.status() {
-        panic!("Transaction failed with status: {:?}", receipt.status());
+        return Err(anyhow!(
+            "Transaction failed with status: {:?}",
+            receipt.status()
+        ));
     }
 
     get_key_id_balance(key_id).await
@@ -97,45 +101,50 @@ mod tests {
     use alloy::primitives::address;
 
     use super::*;
+    use anyhow::Result;
 
     #[tokio::test]
-    async fn test_predict_address() {
-        let predicted_address = predict_address("95469C7E3DFC90B1").await;
+    async fn test_predict_address() -> Result<()> {
+        let predicted_address = predict_address("95469C7E3DFC90B1").await?;
         assert_eq!(
             predicted_address.walletAddress,
             address!("0xd7baae85d719c2e8e27a70194471ef4b6b253d33")
         );
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_ensure_deployed() {
+    async fn test_ensure_deployed() -> Result<()> {
         // already deployed
         let key_id = "95469C7E3DFC90B1";
-        let prediction = ensure_deployed(key_id).await;
+        let prediction = ensure_deployed(key_id).await?;
         assert!(prediction.isDeployed);
         assert_eq!(
             prediction.walletAddress,
             address!("0xd7baae85d719c2e8e27a70194471ef4b6b253d33")
         );
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_get_key_id_balance() {
-        let balance = get_key_id_balance("95469C7E3DFC90B1").await;
+    async fn test_get_key_id_balance() -> Result<()> {
+        let balance = get_key_id_balance("95469C7E3DFC90B1").await?;
         eprintln!("Balance: {balance}");
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_send_to_id() {
+    async fn test_send_to_id() -> Result<()> {
         let Ok(pk) = env::var("PRIVATE_KEY") else {
             eprintln!("PRIVATE_KEY environment variable not set\nSkipping test_send_to_id");
-            return;
+            return Ok(());
         };
         let key_id = "95469C7E3DFC90B1";
         let amount = U256::from(1_000_000_000_000_000u64); // 1 Gwei
 
-        let starting_balance = get_key_id_balance(key_id).await;
-        let new_balance = send_to_gpg_key(key_id, amount, &pk).await;
+        let starting_balance = get_key_id_balance(key_id).await?;
+        let new_balance = send_to_gpg_key(key_id, amount, &pk).await?;
         assert_eq!(new_balance, starting_balance + amount);
+        Ok(())
     }
 }

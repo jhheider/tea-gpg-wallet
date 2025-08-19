@@ -645,6 +645,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "anyhow"
+version = "1.0.99"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0674a1ddeecb70197781e945de4b3b8ffb61fa939a5597bcf48503737663100"
+
+[[package]]
 name = "ark-ff"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2075,6 +2081,7 @@ dependencies = [
  "alloy",
  "alloy-contract",
  "alloy-sol-types",
+ "anyhow",
  "lazy_static",
  "reqwest",
  "serde",
@@ -3333,6 +3340,7 @@ name = "tea-gpg-wallet"
 version = "0.1.0"
 dependencies = [
  "alloy",
+ "anyhow",
  "lazy_static",
  "libtea-gpg-wallet",
  "regex",
