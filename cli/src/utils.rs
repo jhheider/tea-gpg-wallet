@@ -2,6 +2,8 @@ use alloy::primitives::U256;
 use anyhow::{Context, Result};
 use colored::{ColoredString, Colorize};
 
+pub const ETH_DECIMALS: usize = 18;
+
 pub struct SigningResult {
     pub signature: String,
     pub public_key: String,
@@ -56,18 +58,18 @@ pub fn require_private_key() -> Result<String> {
 pub fn wei_to_eth_auto(wei: U256) -> String {
     let wei_str = wei.to_string();
 
-    if wei_str.len() <= 18 {
+    if wei_str.len() <= ETH_DECIMALS {
         // Pad with leading zeros if needed
         let mut padded = wei_str.clone();
-        while padded.len() < 18 {
+        while padded.len() < ETH_DECIMALS {
             padded.insert(0, '0');
         }
 
         // Insert decimal point
-        if padded.len() == 18 {
+        if padded.len() == ETH_DECIMALS {
             padded.insert(0, '0');
         }
-        padded.insert(padded.len() - 18, '.');
+        padded.insert(padded.len() - ETH_DECIMALS, '.');
 
         // Remove trailing zeros
         padded
@@ -77,7 +79,7 @@ pub fn wei_to_eth_auto(wei: U256) -> String {
     } else {
         // Large number, split at the right position
         let mut result = wei_str.clone();
-        result.insert(wei_str.len() - 18, '.');
+        result.insert(wei_str.len() - ETH_DECIMALS, '.');
 
         // Remove trailing zeros
         result

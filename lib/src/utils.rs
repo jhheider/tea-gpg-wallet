@@ -2,7 +2,10 @@ use reqwest::Url as URL;
 use std::str::FromStr;
 
 use alloy::primitives::{FixedBytes, U256};
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, anyhow};
+
+pub const WEI_PER_ETH: u128 = 1_000_000_000_000_000_000;
+pub const ETH_DECIMALS: usize = 18;
 
 #[inline]
 pub fn get_rpc_url() -> Result<URL> {
@@ -25,7 +28,7 @@ pub fn decimal_to_wei_precise(amount_str: &str) -> Result<U256> {
             // No decimal part, just multiply by 10^18
             let whole_u256 =
                 U256::from_str_radix(whole, 10).context("Failed to parse whole number")?;
-            Ok(whole_u256 * U256::from(10u128.pow(18)))
+            Ok(whole_u256 * U256::from(WEI_PER_ETH))
         }
         [whole, decimal] => {
             // Has decimal part
@@ -34,18 +37,18 @@ pub fn decimal_to_wei_precise(amount_str: &str) -> Result<U256> {
 
             // Pad decimal part to 18 digits
             let mut padded_decimal = decimal.to_string();
-            while padded_decimal.len() < 18 {
+            while padded_decimal.len() < ETH_DECIMALS {
                 padded_decimal.push('0');
             }
-            if padded_decimal.len() > 18 {
-                padded_decimal.truncate(18);
+            if padded_decimal.len() > ETH_DECIMALS {
+                padded_decimal.truncate(ETH_DECIMALS);
             }
 
             let decimal_u256 = U256::from_str_radix(&padded_decimal, 10)
                 .context("Failed to parse decimal part")?;
 
-            Ok(whole_u256 * U256::from(10u128.pow(18)) + decimal_u256)
+            Ok(whole_u256 * U256::from(WEI_PER_ETH) + decimal_u256)
         }
-        _ => Err(anyhow::anyhow!("Invalid decimal format")),
+        _ => Err(anyhow!("Invalid decimal format")),
     }
 }
