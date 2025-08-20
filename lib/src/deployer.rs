@@ -46,7 +46,7 @@ pub async fn ensure_deployed(
         )
         .connect_http(get_rpc_url()?);
     GpgRewardDeployer::new(get_contract_address()?, provider)
-        .deploy(key_id_to_bytes(key_id)?)
+        .deploy_call(key_id_to_bytes(key_id)?)
         .send()
         .await
         .context("Failed to deploy GPG reward wallet")?
