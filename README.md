@@ -31,10 +31,12 @@ cd tea-gpg-wallet
 cargo install --path cli
 ```
 
-### Using pkgx (**soon**)
+### Using pkgx
 
 ```bash
 pkgx install tea-gpg-wallet
+# or
+pkgx tea-gpg-wallet --help
 ```
 
 ## Quick Start
@@ -58,7 +60,7 @@ tea-gpg-wallet config
 
 ```bash
 # Using a GPG key ID directly
-tea-gpg-wallet find --key-id 95469C7E3DFC90B1
+tea-gpg-wallet find 95469C7E3DFC90B1
 
 # Using BPB (if available)
 tea-gpg-wallet find --bpb
@@ -83,7 +85,7 @@ Find the predicted wallet address for a GPG key ID and check if it's deployed.
 
 ```bash
 # Using direct key ID
-tea-gpg-wallet find --key-id 95469C7E3DFC90B1
+tea-gpg-wallet find 95469C7E3DFC90B1
 
 # Using BPB
 tea-gpg-wallet find --bpb
@@ -97,7 +99,7 @@ tea-gpg-wallet find --gpg user@example.com
 Deploy a wallet contract for a GPG key ID (requires private key).
 
 ```bash
-tea-gpg-wallet deploy --key-id 95469C7E3DFC90B1
+tea-gpg-wallet deploy 95469C7E3DFC90B1
 ```
 
 ### `send`
@@ -106,7 +108,7 @@ Send TEA tokens to a GPG wallet (deploys wallet if needed).
 
 ```bash
 # Send 1.5 TEA
-tea-gpg-wallet send --key-id 95469C7E3DFC90B1 1.5
+tea-gpg-wallet send 95469C7E3DFC90B1 1.5
 
 # Send 0.001 TEA using BPB
 tea-gpg-wallet send --bpb 0.001
@@ -125,7 +127,7 @@ tea-gpg-wallet sweep --bpb 0x1234567890123456789012345678901234567890
 
 The tool supports three ways to specify GPG key IDs:
 
-1. **Direct key ID**: `--key-id 95469C7E3DFC90B1`
+1. **Direct key ID**: `95469C7E3DFC90B1`
 2. **BPB integration**: `--bpb` (uses secure enclave with teaBASE)
 3. **GPG email lookup**: `--gpg user@example.com`
 
