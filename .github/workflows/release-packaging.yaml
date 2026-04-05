@@ -14,7 +14,7 @@ jobs:
       RUSTFLAGS: "-D warnings"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
       - name: Release Build
         run: cargo build -p tea-gpg-wallet --release
@@ -28,7 +28,7 @@ jobs:
   #   name: Publish to crates.io
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v5
+  #     - uses: actions/checkout@v6
   #     - uses: dtolnay/rust-toolchain@stable
   #     - uses: katyo/publish-crates@v2
   #       with:
