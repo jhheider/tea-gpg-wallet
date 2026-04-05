@@ -1,6 +1,6 @@
 [workspace]
-members = ["cli", "lib"]
-default-members = ["cli"]
+members = ["crates/cli", "crates/lib"]
+default-members = ["crates/cli"]
 resolver = "3"
 
 [workspace.package]
@@ -11,3 +11,9 @@ repository = "https://github.com/jhheider/tea-gpg-wallet"
 keywords = ["cryptocurrency", "gpg", "blockchain", "tea"]
 license = "MIT"
 rust-version = "1.89"
+
+[workspace.dependencies]
+alloy = "1.0.30"
+anyhow = "1.0.100"
+lazy_static = "1.5.0"
+tokio = "1.47.1"
