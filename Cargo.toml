@@ -13,7 +13,7 @@ license = "MIT"
 rust-version = "1.89"
 
 [workspace.dependencies]
-alloy = "1.0.30"
+alloy = "2.0.0"
 anyhow = "1.0.100"
 lazy_static = "1.5.0"
 tokio = "1.47.1"
