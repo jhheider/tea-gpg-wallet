@@ -13,7 +13,26 @@ license = "MIT"
 rust-version = "1.89"
 
 [workspace.dependencies]
-alloy = "2"
+# Drop alloy's default reqwest-rustls-tls (aws-lc-rs C build). We own the
+# shared reqwest with rustls-no-provider + ring instead (house TLS stack).
+alloy = { version = "2", default-features = false, features = [
+    "std",
+    "essentials",
+    "reqwest",
+] }
 anyhow = "1.0.100"
 lazy_static = "1.5.0"
 tokio = "1.52.1"
+# rustls + ring only; keep `cargo tree -i aws-lc-sys` / `-i openssl-sys` empty.
+reqwest = { version = "0.13", default-features = false, features = [
+    "charset",
+    "http2",
+    "json",
+    "rustls-no-provider",
+    "system-proxy",
+] }
+rustls = { version = "0.23", default-features = false, features = [
+    "ring",
+    "std",
+    "tls12",
+] }
