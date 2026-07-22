@@ -10,5 +10,5 @@ lazy_static = { workspace = true }
 serde = { version = "1.0.228", features = ["derive", "serde_derive"] }
 alloy = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
-reqwest = "0.12.23"
+reqwest = "0.13.2"
 anyhow = { workspace = true }
