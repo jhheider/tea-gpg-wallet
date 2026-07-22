@@ -18,6 +18,9 @@ use std::time::Duration;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // rustls + ring only (no aws-lc C build). reqwest is built with
+    // rustls-no-provider; install ring process-wide before any TLS call.
+    let _ = rustls::crypto::ring::default_provider().install_default();
     let key_arguments = [
         Arg::new("key_id").help("The GPG key ID to map to wallet address"),
         Arg::new("bpb")

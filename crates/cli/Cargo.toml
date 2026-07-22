@@ -16,3 +16,4 @@ indicatif = "0.18.0"
 # pkgx fork; includes macOS secure enclave support.
 # use it directly eventually; for now, use Command
 # pbp = { git = "https://github.com/pkgxdev/bpb", features = ["dalek"] }
+rustls = { workspace = true }
