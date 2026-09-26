@@ -1,2 +1,5 @@
 /target
 /coverage
+
+# Local Claude Code state (agent worktrees)
+/.claude/worktrees/
