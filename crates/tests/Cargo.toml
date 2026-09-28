@@ -1,0 +1,36 @@
+[package]
+name = "tea-gpg-wallet-tests"
+version = "0.2.0"
+edition = "2021"
+
+[[test]]
+name = "test_cli_interface"
+path = "contract/test_cli_interface.rs"
+
+[[test]]
+name = "test_library_api"
+path = "contract/test_library_api.rs"
+
+[[test]]
+name = "test_complete_workflow"
+path = "integration/test_complete_workflow.rs"
+
+[[test]]
+name = "test_auth_methods"
+path = "integration/test_auth_methods.rs"
+
+[[test]]
+name = "test_data_models"
+path = "unit/test_data_models.rs"
+
+[[test]]
+name = "test_utils"
+path = "unit/test_utils.rs"
+
+[dependencies]
+libtea-gpg-wallet = { path = "../lib" }
+alloy-primitives = "1.0.25"
+serde_json = "1.0"
+colored = "3.0"
+tokio = { workspace = true, features = ["full"] }
+anyhow = { workspace = true }

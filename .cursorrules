@@ -1,0 +1,74 @@
+# TEA GPG Wallet CLI Tool - Cursor AI Context
+
+## Project Overview
+Rust CLI tool for interacting with TEA's on-chain GPG rewards wallets. Provides secure wallet management using GPG key authentication instead of traditional private keys.
+
+## Tech Stack
+- **Language**: Rust 1.89+
+- **CLI Framework**: Clap v4 with derive macros
+- **Blockchain**: Alloy for Ethereum interactions
+- **Async Runtime**: Tokio
+- **Error Handling**: anyhow with contextual errors
+- **Progress Indicators**: indicatif
+- **Colored Output**: colored crate
+- **Subprocess**: std::process::Command with input validation
+
+## Architecture
+- **CLI Layer**: Command parsing, user interface, authentication coordination
+- **Library Layer**: Deployer, Wallet, Utils modules
+- **Blockchain Layer**: RPC communication, contract interaction, transaction management
+
+## Key Features
+- GPG-based authentication (direct key ID, BPB, email lookup)
+- Automatic wallet deployment
+- TEA token transfers with GPG signatures
+- Contract call execution with optional data
+- Comprehensive error handling with retry logic
+
+## Commands
+- `config`: Display configuration
+- `find`: Find wallet address for GPG key
+- `deploy`: Deploy wallet contract
+- `send`: Send TEA to wallet (deploy if needed)
+- `execute`: Send arbitrary amounts using GPG signatures
+- `sweep`: Transfer all funds using GPG signatures
+- `status`: Show detailed wallet information
+
+## Data Models
+- `AddressPrediction`: Wallet address and deployment status
+- `SigningData`: Hash blob and deadline for GPG signing
+- `WalletStatus`: Comprehensive wallet state
+- `SigningResult`: GPG signature and public key
+
+## Security
+- No persistent key storage
+- Input validation at all boundaries
+- Secure subprocess handling for GPG/BPB
+- HTTPS for all RPC communications
+- Retry logic with exponential backoff
+
+## Performance Targets
+- Wallet operations: ≤30s
+- Query operations: ≤5s
+- CLI startup: ≤1s
+- Memory usage: ≤50MB
+
+## Testing
+- 80% code coverage target
+- Unit tests for library components
+- Integration tests for CLI commands
+- Mock external dependencies (GPG, BPB, RPC)
+
+## Recent Changes
+- Added execute command for arbitrary transfers with GPG signatures
+- Removed admin/deadman switch functionality (end-user focus)
+- Enhanced gas estimation (limit + price + total cost)
+- Configurable retry behavior (3 attempts, exponential backoff)
+- Multi-layer configuration (env vars + config file + CLI flags)
+
+## Development Guidelines
+- Follow Rust best practices and clippy recommendations
+- Use async/await consistently for I/O operations
+- Implement proper error handling with anyhow contexts
+- Write tests before implementation (TDD approach)
+- Use descriptive names and comprehensive documentation

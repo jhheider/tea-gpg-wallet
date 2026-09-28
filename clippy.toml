@@ -1,0 +1,15 @@
+# Clippy configuration for TEA GPG Wallet CLI Tool
+# Based on project constitution requirements for code quality
+
+# Allow some specific lints that are appropriate for this project
+# Allow single-character variable names for common patterns
+single-char-binding-names-threshold = 1
+
+# Allow large error types (WalletError has many variants)
+too-many-arguments-threshold = 10
+
+# Allow complex types for blockchain operations
+type-complexity-threshold = 300
+
+# Allow long lines for documentation and error messages
+min-ident-chars-threshold = 1
